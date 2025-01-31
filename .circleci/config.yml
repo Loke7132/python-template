@@ -10,34 +10,53 @@ jobs:
       - image: cimg/python:3.12
     steps:
       - checkout
-      - python/install-packages:
-          pkg-manager: pip
-          args: ".[dev]"
+      # Add cache restoration
+      - restore_cache:
+          keys:
+            - v1-deps-{{ .Branch }}-{{ checksum "pyproject.toml" }}
+            - v1-deps-{{ .Branch }}
+            - v1-deps
+      # Install pip and upgrade it
+      - run:
+          name: Install pip
+          command: |
+            python -m pip install --upgrade pip
+      # Install project dependencies
+      - run:
+          name: Install Dependencies
+          command: |
+            pip install -e ".[dev]"
+      # Save cache
+      - save_cache:
+          key: v1-deps-{{ .Branch }}-{{ checksum "pyproject.toml" }}
+          paths:
+            - ~/.cache/pip
+            - ~/.local/lib/python3.12/site-packages
+      # Run static analysis
       - run:
           name: Run Static Analysis
           command: |
             ruff check .
             mypy .
+      # Run tests
       - run:
           name: Run Tests
           command: |
             mkdir -p test-results
             pytest --junitxml=test-results/junit.xml
+      # Store test results
       - store_test_results:
           path: test-results
       - store_artifacts:
           path: test-results
           destination: test-reports
+      # Persist workspace
       - persist_to_workspace:
           root: ~/project
           paths:
             - .
 
-  
-
 workflows:
   test_and_deploy:
     jobs:
       - build_and_test
-     
-
