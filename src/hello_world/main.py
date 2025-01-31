@@ -1,5 +1,4 @@
 """Main module for the hello world application."""
-from typing import str
 
 def get_greeting(name: str = "World") -> str:
     """Return a greeting message.
