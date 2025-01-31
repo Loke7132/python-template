@@ -1,0 +1,35 @@
+[project]
+name = "hello-world"
+version = "0.1.0"
+requires-python = ">=3.12"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.1.9",
+    "mypy>=1.8.0"
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+select = ["ALL"]
+ignore = [
+    "D203",  # Disabled as conflicts with D211
+    "D212",  # Disabled as conflicts with D213
+]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true

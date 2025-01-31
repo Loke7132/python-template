@@ -1,0 +1,34 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@2.1.1
+
+jobs:
+  build-and-test:
+    docker:
+      - image: cimg/python:3.12
+    steps:
+      - checkout
+      - python/install-packages:
+          pkg-manager: pip
+          args: ".[dev]"  # This installs the package in editable mode with dev dependencies
+      - run:
+          name: Run Static Analysis
+          command: |
+            ruff check .
+            mypy .
+      - run:
+          name: Run Tests
+          command: |
+            mkdir -p test-results
+            pytest --junitxml=test-results/junit.xml
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: test-results
+          destination: tr1
+
+workflows:
+  main:
+    jobs:
+      - build-and-test
