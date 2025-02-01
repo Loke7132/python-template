@@ -8,4 +8,4 @@ def test_greeting() -> None:
 
 def test_basic_math() -> None:
     """Basic test as requested."""
-    assert 2 + 2 == 4
+    assert 2 + 2 == 5
