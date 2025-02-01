@@ -7,7 +7,7 @@ def get_greeting(name: str = "World") -> str:
         name: Name to greet. Defaults to "World".
     
     Returns:
-        A greeting string.
+        A greeting string. Changed for testing in GitHub Actions.
     """
     return f"Hello, {name}!"
 
