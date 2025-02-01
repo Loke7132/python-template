@@ -1,4 +1,3 @@
-"""Test module for hello world application."""
 from hello_world.main import get_greeting
 
 def test_greeting() -> None:
@@ -7,5 +6,5 @@ def test_greeting() -> None:
     assert get_greeting("Test") == "Hello, Test!"
 
 def test_basic_math() -> None:
-    """Basic test as requested."""
-    assert 2 + 2 == 5
+    """Basic test"""
+    assert 2 + 2 == 4

@@ -1,5 +1,3 @@
-"""Main module for the hello world application."""
-
 def get_greeting(name: str = "World") -> str:
     """Return a greeting message.
     
@@ -12,7 +10,7 @@ def get_greeting(name: str = "World") -> str:
     return f"Hello, {name}!"
 
 def main() -> None:
-    """Main entry point."""
+   
     print(get_greeting())
 
 if __name__ == "__main__":
