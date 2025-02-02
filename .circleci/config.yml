@@ -2,7 +2,6 @@ version: 2.1
 
 orbs:
   python: circleci/python@2.0.3
-  
 
 jobs:
   build_and_test:
@@ -10,51 +9,58 @@ jobs:
       - image: cimg/python:3.12
     steps:
       - checkout
-      # Add cache restoration
+      # Restore cache for dependencies
       - restore_cache:
           keys:
             - v1-deps-{{ .Branch }}-{{ checksum "pyproject.toml" }}
             - v1-deps-{{ .Branch }}
             - v1-deps
-      # Install pip and upgrade it
+      # Upgrade pip
       - run:
           name: Install pip
           command: |
             python -m pip install --upgrade pip
-      # Install project dependencies
+      # Install project dependencies (including dev dependencies)
       - run:
           name: Install Dependencies
           command: |
             pip install -e ".[dev]"
-      # Save cache
+      # Save cache for dependencies
       - save_cache:
           key: v1-deps-{{ .Branch }}-{{ checksum "pyproject.toml" }}
           paths:
             - ~/.cache/pip
             - ~/.local/lib/python3.12/site-packages
-      # Run static analysis
+      # Run static analysis (ruff and mypy)
       - run:
           name: Run Static Analysis
           command: |
             ruff check .
             mypy .
-      # Run tests
+      # Run unit tests
       - run:
-          name: Run Tests
+          name: Run Unit Tests
           command: |
-            mkdir -p test-results
-            pytest --junitxml=test-results/junit.xml
-      # Store test results
+            mkdir -p test-results/unit
+            pytest tests/unit/ --junitxml=test-results/unit/junit.xml
+      # Run integration tests
+      - run:
+          name: Run Integration Tests
+          command: |
+            mkdir -p test-results/integration
+            pytest tests/integration/ --junitxml=test-results/integration/junit.xml
+      # Run end-to-end tests
+      - run:
+          name: Run End-to-End Tests
+          command: |
+            mkdir -p test-results/e2e
+            pytest tests/e2e/ --junitxml=test-results/e2e/junit.xml
+      # Store test results for all test types (unit, integration, e2e)
       - store_test_results:
           path: test-results
+      # Store artifacts for debugging purposes (optional)
       - store_artifacts:
           path: test-results
-          destination: test-reports
-      # Persist workspace
-      - persist_to_workspace:
-          root: ~/project
-          paths:
-            - .
 
 workflows:
   test_and_deploy:

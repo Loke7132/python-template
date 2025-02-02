@@ -1,0 +1,22 @@
+# Component Structure
+
+## What is a Component?
+A component in this template is a self-contained Python package that:
+1. Lives under the `src/` directory
+2. Has a single, well-defined responsibility
+3. Exposes a clear public interface
+4. Contains its own tests and documentation
+
+
+
+### Structure
+
+``` shell
+src/
+└── hello_world/
+├── init.py # Public interface
+├── main.py # Core implementation
+
+
+```
+
