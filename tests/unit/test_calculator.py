@@ -1,6 +1,6 @@
-from src.components.calculator import calculator 
+from src.components.calculator import Calculator 
 
 def test_calculator_add():
-    calc = calculator()
+    calc = Calculator()
     assert calc.add(2, 2) == 4
 

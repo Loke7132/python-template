@@ -5,9 +5,9 @@ from components.notifier import Notifier
 def test_full_workflow():
     """Test complete system workflow"""
     # Initialize components
-    calc = calculator()
-    logger = logger()
-    notifier = notifier(threshold=50)
+    calc = Calculator()
+    logger = Logger()
+    notifier = Notifier(threshold=50)
     
     # Perform calculation
     result = calc.multiply(7, 8)  # 56
