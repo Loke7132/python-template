@@ -1,4 +1,4 @@
-class Notifier:
+class notifier:
     def __init__(self, threshold: float):
         self.threshold = threshold
         self.last_notification = None

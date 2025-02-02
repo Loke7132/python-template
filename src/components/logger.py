@@ -1,4 +1,4 @@
-class Logger:
+class logger:
     def __init__(self):
         self.logs = []
     
