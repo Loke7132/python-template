@@ -1,6 +1,6 @@
-from components.calculator import Calculator
-from components.logger import Logger
-from components.notifier import Notifier
+from src.components.calculator import Calculator
+from src.components.logger import Logger
+from src.components.notifier import Notifier
 
 def test_full_workflow():
     """Test complete system workflow"""

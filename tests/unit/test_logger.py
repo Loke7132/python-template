@@ -1,4 +1,4 @@
-from components.logger import Logger
+from src.components.logger  import Logger
 
 def test_logger_initialization():
     """Test logger starts empty"""

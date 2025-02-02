@@ -1,4 +1,4 @@
-from components.calculator import Calculator 
+from src.components.calculator import Calculator
 
 def test_calculator_add():
     calc = Calculator()

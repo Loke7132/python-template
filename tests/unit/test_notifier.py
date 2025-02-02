@@ -1,4 +1,4 @@
-from components.notifier import Notifier
+from src.components.notifier import Notifier
 
 def test_threshold_check():
     """Test threshold detection"""

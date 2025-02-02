@@ -1,5 +1,5 @@
-from components.calculator import Calculator
-from components.logger import Logger
+from src.components.calculator import Calculator
+from src.components.logger import Logger
 
 def test_calculator_logger_integration():
     """Test calculator operations are logged correctly"""
