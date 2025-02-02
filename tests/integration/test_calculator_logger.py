@@ -1,8 +1,8 @@
 from components.calculator import Calculator
 from components.logger import Logger
 
-def test_calculator_logger_integration():
-    """Test calculator operations are logged correctly"""
+def test_calculator_logger_integration() -> None:
+    """Test calculator operations are logged correctly."""
     calc = Calculator()
     logger = Logger()
     

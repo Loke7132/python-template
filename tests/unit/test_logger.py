@@ -1,12 +1,12 @@
-from components.logger  import Logger
+from components.logger import Logger
 
-def test_logger_initialization():
-    """Test logger starts empty"""
+def test_logger_initialization() -> None:
+    """Test logger starts empty."""
     logger = Logger()
     assert len(logger.logs) == 0
 
-def test_log_operation():
-    """Test logging operations"""
+def test_log_operation() -> None:
+    """Test logging operations."""
     logger = Logger()
     logger.log_operation("add", 5)
     assert logger.logs[-1] == "add: 5"

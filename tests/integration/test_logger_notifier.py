@@ -1,18 +1,14 @@
-from components.calculator import Calculator
-from components.logger import  Logger
+from components.logger import Logger
+from components.notifier import Notifier
 
-def test_calculator_logger_integration():
-    """Test calculator operations are logged correctly"""
-    calc = Calculator()
+def test_logger_notifier_integration() -> None:
+    """Test notifications trigger logging."""
     logger = Logger()
+    notifier = Notifier(threshold=100)
     
-    result = calc.add(5, 3)
-    logger.log_operation("addition", result)
+    result = 150
     
-    result = calc.multiply(2, 4)
-    logger.log_operation("multiplication", result)
+    if notifier.check_threshold(result):
+        logger.log_operation("threshold_alert", result)
     
-    assert logger.logs == [
-        "addition: 8",
-        "multiplication: 8"
-    ]
+    assert logger.logs[-1] == "threshold_alert: 150"
