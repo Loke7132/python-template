@@ -2,7 +2,6 @@ version: 2.1
 
 orbs:
   python: circleci/python@2.0.3
-  slack: circleci/slack@4.12.5
 
 parameters:
   python-version:
@@ -100,9 +99,6 @@ jobs:
       - store_artifacts:
           path: coverage_html
           destination: coverage-report-e2e
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
 
   deploy-staging:
     docker:
@@ -114,9 +110,6 @@ jobs:
           name: Deploy to Staging
           command: |
             echo "Deploying to staging environment"
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
 
   deploy-production:
     docker:
@@ -128,9 +121,6 @@ jobs:
           name: Deploy to Production
           command: |
             echo "Deploying to production environment"
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
 
 workflows:
   version: 2
