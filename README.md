@@ -1,6 +1,6 @@
 # Python-template
 
-An initial template repository for a Python project
+An advanced Python template repository for building modular projects with testing and CI/CD pipelines.
 
 ## Prerequisites
 
@@ -11,7 +11,19 @@ An initial template repository for a Python project
 ### Running the code
 
 
+
+
 ## Introduction
+
+This project provides a foundational structure for Python applications with:
+
+1) Components: Modular design for Calculator, Logger, and Notifier.
+
+2) Testing: Unit tests, integration tests, and end-to-end tests.
+
+3) Code Quality: Static analysis with mypy and linting with ruff.
+
+4) CI/CD Pipeline: Automated testing and deployment using CircleCI.
 
 ### Tools
 1. Language: Python@3.12
@@ -23,49 +35,65 @@ An initial template repository for a Python project
 ### Structure
 ``` shell
 
+
 .
-├── .circleci/ # CI configuration
-│ └── config.yml
-├── .github/ # Templates
-│ ├── ISSUE_TEMPLATE/
-├── src/ # Source code
-│ └── hello_world/
-│ ├── init.py
-│ └── main.py
-├── tests/ # Unit tests
-├── .gitignore
-├── .ruff.toml # Lint configuration
-├── pyproject.toml # Project metadata
-└── PULL_REQUEST_TEMPLATE.md
-├── LICENSE
-└── README.md
+├── .circleci/           # CI configuration
+│   └── config.yml
+├── .github/             # Templates for issues and PRs
+├── src/                 # Source code
+│   └── components/
+│       ├── calculator.py  # Performs arithmetic operations
+│       ├── logger.py      # Records operations performed by Calculator
+│       └── notifier.py    # Sends alerts when thresholds are exceeded
+├── tests/               # Test files
+│   ├── unit/            # Unit tests for individual components
+│   ├── integration/     # Integration tests between components
+│   └── e2e/             # End-to-end tests for the entire system
+├── .gitignore           # Files to ignore in Git
+├── pyproject.toml       # Project metadata and dependencies
+├── LICENSE              # Open-source license file
+└── README.md            # Documentation (this file)
+
 ```
 
-### Components Example
+### Components Overview
 
-**Greeting Component** (src/hello_world/main.py):
 
+
+**Calculator Component** 
+Performs basic arithmetic operations like addition, subtraction, and multiplication.
 ``` shell
-def get_greeting(name: str = "World") -> str:
-return f"Hello, {name}!"
+from components.calculator import Calculator
 
-def main() -> None:
-print(get_greeting())
-``` 
-
-**Validation Component** (tests/test_greeting.py):
-
-``` shell
-from hello_world.main import get_greeting
-
-def test_default_greeting():
-assert get_greeting() == "Hello, World!"
-
-def test_named_greeting():
-assert get_greeting("loki") == "Hello, loki!"
+calc = Calculator()
+result = calc.add(5, 3)
+print(result)  # Output: 8
 
 ``` 
 
+**Logger Component** 
+Records operations performed by the Calculator.
+``` shell
+from components.notifier import Notifier
+
+notifier = Notifier(threshold=10)
+if notifier.check_threshold(15):
+    print(notifier.last_notification)  # Output: "ALERT: Value 15 exceeds threshold 10!"
+
+
+
+```
+**Notifier Component**
+Sends an alert when a calculation result exceeds a specified threshold.
+
+```shell
+
+from components.notifier import Notifier
+
+notifier = Notifier(threshold=10)
+if notifier.check_threshold(15):
+    print(notifier.last_notification)  # Output: "ALERT: Value 15 exceeds threshold 10!"
+```
 
 ### CI Pipeline
 1. Install Python 3.12 + dependencies
@@ -77,13 +105,14 @@ assert get_greeting("loki") == "Hello, loki!"
 ## Getting Started
 
 Set up development environment:
-
+    Create a virtual environment:
 ``` shell
 python -m venv .venv
 ``` 
 ``` shell
 source .venv/bin/activate
 ```
+Install dependencies:
 ``` shell
 pip install -e ".[dev]"
 ``` 
@@ -109,27 +138,56 @@ Type checking:
     ruff format .
 ``` 
 
+Tests Overview
+Unit Tests
+Calculator: Tests addition, subtraction, multiplication.
+
+Logger: Tests logging of operations.
+
+Notifier: Tests threshold alerts.
+
+Integration Tests
+Calculator ↔ Logger: Ensures calculator results are logged properly.
+
+Logger ↔ Notifier: Ensures notifications trigger logging correctly.
+
+End-to-End Test
+Performs a calculation, logs it, and sends a notification if the result exceeds the threshold.
 
 ## CI Configuration (.circleci/config.yml)
 ``` shell
 version: 2.1
+
 orbs:
-python: circleci/python@2.1.1
+  python: circleci/python@2.0.3
+
 jobs:
-build_and_test:
-docker:
-    - image: cimg/python:3.12
+  build_and_test:
+    docker:
+      - image: cimg/python:3.12
     steps:
-    - checkout
-    - python/install-packages:
-args: ".[dev]"
-    - run: ruff check .
-    - run: mypy .
-    - run: pytest --cov=src --cov-report=xml
-    - store_test_results:
-path: test-results
-    - store_artifacts:
-path: coverage.xml
+      - checkout
+      - python/install-packages:
+          args: ".[dev]"
+      - run:
+          name: Run Static Analysis and Linting
+          command: |
+            ruff check .
+            mypy .
+      - run:
+          name: Run Unit Tests and Coverage Report
+          command: |
+            pytest --cov=src --cov-report=xml --junitxml=test-results/results.xml
+      - store_test_results:
+          path: test-results/
+      - store_artifacts:
+          path: coverage.xml
+
+workflows:
+  test_and_deploy:
+    jobs:
+      - build_and_test
+
 ``` 
 
 
@@ -141,8 +199,16 @@ path: coverage.xml
 5. Submit PR using template
 
 ## Contribution Guidelines
-- Follow Python PEP8 style guide
-- Include type hints for all functions
-- Keep test coverage ≥ 90%
-- Use PR template from `PULL_REQUEST_TEMPLATE.md`
-- Reference issues in commit messages
+1. Follow these guidelines to contribute to the project:
+
+2. Create a feature branch from main.
+
+3. Write unit tests for new features or fixes.
+
+4. Ensure all tests pass before submitting a pull request.
+
+5. Use type hints for all functions/methods.
+
+6. Follow PEP8 style guide for clean code.
+
+7. Submit PRs using the provided template in .github/PULL_REQUEST_TEMPLATE.md
