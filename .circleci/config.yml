@@ -60,7 +60,8 @@ jobs:
           path: test-results
       # Store artifacts for debugging purposes (optional)
       - store_artifacts:
-          path: test-results
+          path: coverage.xml
+          destination: coverage-report
 
 workflows:
   test_and_deploy:
