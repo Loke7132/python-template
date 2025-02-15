@@ -3,185 +3,71 @@ version: 2.1
 orbs:
   python: circleci/python@2.0.3
 
-parameters:
-  python-version:
-    type: string
-    default: "3.12"
-
-commands:
-  install-dependencies:
+jobs:
+  build_and_test:
+    docker:
+      - image: cimg/python:3.12
     steps:
+      - checkout
+      # Restore cache for dependencies
       - restore_cache:
           keys:
             - v1-deps-{{ .Branch }}-{{ checksum "pyproject.toml" }}
             - v1-deps-{{ .Branch }}
             - v1-deps
+      # Upgrade pip
       - run:
           name: Install pip
           command: |
             python -m pip install --upgrade pip
+      # Install project dependencies (including dev dependencies)
       - run:
           name: Install Dependencies
           command: |
             pip install -e ".[dev]"
+      # Save cache for dependencies
       - save_cache:
           key: v1-deps-{{ .Branch }}-{{ checksum "pyproject.toml" }}
           paths:
             - ~/.cache/pip
             - ~/.local/lib/python3.12/site-packages
-
-jobs:
-  static-analysis:
-    docker:
-      - image: cimg/python:<< pipeline.parameters.python-version >>
-    resource_class: small
-    steps:
-      - checkout
-      - install-dependencies
+      # Run static analysis (ruff and mypy)
       - run:
           name: Run Static Analysis
           command: |
             ruff check .
             mypy .
-
-  unit-tests:
-    docker:
-      - image: cimg/python:<< pipeline.parameters.python-version >>
-    resource_class: medium
-    parallelism: 4
-    steps:
-      - checkout
-      - install-dependencies
+      # Run unit tests with coverage
       - run:
           name: Run Unit Tests
           command: |
             mkdir -p test-results/unit
-            TESTFILES=$(circleci tests glob "tests/unit/*.py" | circleci tests split --split-by=timings)
-            pytest $TESTFILES --cov=src --cov-report=html:coverage_html --junitxml=test-results/unit/junit.xml
-      - store_test_results:
-          path: test-results
-      - store_artifacts:
-          path: coverage_html
-          destination: coverage-report-unit
-
-  integration-tests:
-    docker:
-      - image: cimg/python:<< pipeline.parameters.python-version >>
-    resource_class: medium
-    steps:
-      - checkout
-      - install-dependencies
+            pytest tests/unit/ --cov=src --cov-report=html:coverage_html --junitxml=test-results/unit/junit.xml
+      # Run integration tests with coverage
       - run:
           name: Run Integration Tests
           command: |
             mkdir -p test-results/integration
-            pytest tests/integration/ --cov=src --cov-report=html:coverage_html --junitxml=test-results/integration/junit.xml
-      - store_test_results:
-          path: test-results
-      - store_artifacts:
-          path: coverage_html
-          destination: coverage-report-integration
-
-  e2e-tests:
-    docker:
-      - image: cimg/python:<< pipeline.parameters.python-version >>
-    resource_class: large
-    steps:
-      - checkout
-      - install-dependencies
+            pytest tests/integration/ --cov=src --cov-append --cov-report=html:coverage_html --junitxml=test-results/integration/junit.xml
+      # Run end-to-end tests with coverage
       - run:
-          name: Run E2E Tests
+          name: Run End-to-End Tests
           command: |
             mkdir -p test-results/e2e
-            pytest tests/e2e/ --cov=src --cov-report=html:coverage_html --junitxml=test-results/e2e/junit.xml
+            pytest tests/e2e/ --cov=src --cov-append --cov-report=html:coverage_html --junitxml=test-results/e2e/junit.xml
+      # Store test results for all test types (unit, integration, e2e)
       - store_test_results:
           path: test-results
+      # Store coverage HTML report
       - store_artifacts:
           path: coverage_html
-          destination: coverage-report-e2e
-
-  deploy-staging:
-    docker:
-      - image: cimg/python:<< pipeline.parameters.python-version >>
-    steps:
-      - checkout
-      - install-dependencies
-      - run:
-          name: Deploy to Staging
-          command: |
-            echo "Deploying to staging environment"
-
-  deploy-production:
-    docker:
-      - image: cimg/python:<< pipeline.parameters.python-version >>
-    steps:
-      - checkout
-      - install-dependencies
-      - run:
-          name: Deploy to Production
-          command: |
-            echo "Deploying to production environment"
+          destination: coverage-html-report
+      # Store test results as artifacts for debugging
+      - store_artifacts:
+          path: test-results
+          destination: test-results
 
 workflows:
-  version: 2
-  test-and-deploy:
+  test_and_deploy:
     jobs:
-      - static-analysis
-      - unit-tests:
-          requires:
-            - static-analysis
-      - integration-tests:
-          requires:
-            - unit-tests
-          filters:
-            branches:
-              only:
-                - main
-                - develop
-      - e2e-tests:
-          requires:
-            - integration-tests
-          filters:
-            branches:
-              only:
-                - main
-                - develop
-      - deploy-staging:
-          requires:
-            - e2e-tests
-          filters:
-            branches:
-              only: develop
-      - hold-production-deploy:
-          type: approval
-          requires:
-            - e2e-tests
-          filters:
-            branches:
-              only: main
-      - deploy-production:
-          requires:
-            - hold-production-deploy
-          filters:
-            branches:
-              only: main
-
-  nightly:
-    triggers:
-      - schedule:
-          cron: "0 0 * * *"
-          filters:
-            branches:
-              only:
-                - main
-    jobs:
-      - static-analysis
-      - unit-tests:
-          requires:
-            - static-analysis
-      - integration-tests:
-          requires:
-            - unit-tests
-      - e2e-tests:
-          requires:
-            - integration-tests
+      - build_and_test
