@@ -5,9 +5,6 @@ orbs:
   slack: circleci/slack@4.12.5
 
 parameters:
-  run-integration-tests:
-    type: boolean
-    default: true
   python-version:
     type: string
     default: "3.12"
@@ -146,12 +143,19 @@ workflows:
       - integration-tests:
           requires:
             - unit-tests
-          when:
-            condition:
-              equal: [ true, << pipeline.parameters.run-integration-tests >> ]
+          filters:
+            branches:
+              only:
+                - main
+                - develop
       - e2e-tests:
           requires:
             - integration-tests
+          filters:
+            branches:
+              only:
+                - main
+                - develop
       - deploy-staging:
           requires:
             - e2e-tests
